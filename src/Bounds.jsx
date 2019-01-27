@@ -1,21 +1,32 @@
 import React, { Component } from 'react';
 
-
+// create one window resize listener for all bounds
 window.addEventListener('resize', () => Bounds.instances.forEach(i => i.handleResize()));
 
 class Bounds extends Component
 {
+	// standard profiles - to be revised
 	static profiles = {
 		small: { maxWidth: 600 },
 		medium: { minWidth: 800 },
 		large: { minWidth: 1000 }
 	};
 
+	// store Bounds component instances to trigger on resize
 	static instances = [];
+
+
+	// create a new component using specific parameters
+	// 
+	// Example:
+	// const Mobile = Bounds.create({ maxWidth: 600 });
+	//
+	// Component usage example:
+	// <Mobile render={() => <div>Render me on a mobile device</div>} />
 
 	static create(params)
 	{
-		return (props) => <Bounds {...params}>{props.children}</Bounds>
+		return (props) => <Bounds {...props} {...params} />
 	}
 
 	constructor(props)
@@ -26,13 +37,16 @@ class Bounds extends Component
 
 	componentDidMount()
 	{
+		// push to the instances array
 		Bounds.instances.push(this);
 	}
 
 	componentWillUnmount()
 	{
+		// remove it once it has been unmounted
 		Bounds.instances.splice(Bounds.instances.indexOf(this), 1);
 	}
+
 
 	shouldDisplay()
 	{
@@ -50,10 +64,25 @@ class Bounds extends Component
 
 	render()
 	{
-		return this.state.display ? this.props.children : null;
-	}
+		if (typeof(this.props.render) !== 'function')
+		{
+			throw 'Bounds: Expecting render property to be a callback function';
+			return null;
+		}
 
-	handleResize = () => this.setState({ display: this.shouldDisplay() });
+		if (this.props.else && typeof(this.props.else) !== 'function')
+		{
+			throw 'Bounds: Else property should be a callback function';
+			return null;
+		}
+
+		if (this.state.display)
+			return this.props.render();
+		else if (this.props.else)
+			return this.props.else();
+		else
+			return null;
+	}
 
 	getParams()
 	{
@@ -73,16 +102,25 @@ class Bounds extends Component
 				maxWidth: t.maxWidth || t.minWidth || undefined
 			};
 		}
-		
-		return Bounds.profiles.large;
+
+		return this.props;
 	}
 
+
+	// determine profile using the string name or return the profile object
 	getProfile(profile)
 	{
 		if (typeof(profile) === 'string')
 			return Bounds.profiles[profile];
 		else
 			return profile;
+	}
+
+	handleResize()
+	{
+		// update the <Bounds /> component state, which will then update
+		// child components
+		this.setState({ display: this.shouldDisplay() });
 	}
 
 }
