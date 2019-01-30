@@ -5,30 +5,7 @@ window.addEventListener('resize', () => Bounds.instances.forEach(i => i.handleRe
 
 class Bounds extends Component
 {
-	// standard profiles - to be revised
-	static profiles = {
-		small: { maxWidth: 600 },
-		medium: { minWidth: 800 },
-		large: { minWidth: 1000 }
-	};
-
-	// store Bounds component instances to trigger on resize
-	static instances = [];
-
-
-	// create a new component using specific parameters
-	// 
-	// Example:
-	// const Mobile = Bounds.create({ maxWidth: 600 });
-	//
-	// Component usage example:
-	// <Mobile render={() => <div>Render me on a mobile device</div>} />
-
-	static create(params)
-	{
-		return (props) => <Bounds {...props} {...params} />
-	}
-
+	
 	constructor(props)
 	{
 		super(props);
@@ -124,5 +101,35 @@ class Bounds extends Component
 	}
 
 }
+
+
+// static properties and functions - will convert to use static keyword inside class
+// when available in Babel
+
+// standard profiles - to be revised
+Bounds.profiles = {
+	small: { maxWidth: 600 },
+	medium: { minWidth: 800 },
+	large: { minWidth: 1000 }
+};
+
+// store Bounds component instances to trigger on resize
+Bounds.instances = [];
+
+
+// create a new component using specific parameters
+// 
+// Example:
+// const Mobile = Bounds.create({ maxWidth: 600 });
+//
+// Component usage example:
+// <Mobile render={() => <div>Render me on a mobile device</div>} />
+
+Bounds.create = function (params)
+{
+	return (props) => React.createElement(Bounds, { ...props, ...params });
+}
+
+
 
 export default Bounds;
